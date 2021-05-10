@@ -1,0 +1,8 @@
+IBM p_value for q=2 is  0.20676124395768225
+MSFT p_value for q=2 is  0.1923759628543844
+INTC p_value for q=2 is  0.43322352514526585
+AAPL p_value for q=2 is  0.07944674496601034
+
+#特斯拉只有2010.07及以后的数据
+TSLA p_value for q=2 is  0.9592617200675357
+
