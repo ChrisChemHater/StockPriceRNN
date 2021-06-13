@@ -12,10 +12,13 @@ Parameters to optimize for LSTM and GRU:
     - lr
 """
 from typing import Literal
+
+from numpy import dtype
 import joblib
 from tap import Tap
+import torch
 from torch.optim import Adam
-from hyperopt import hp, fmin, tpe, Trials
+from hyperopt import hp, fmin, tpe, Trials, STATUS_FAIL
 from models.load_data import DataLoader
 from models.RNN import StockLSTM, StockGRU, train, validate
 
@@ -75,20 +78,23 @@ def _objective(kwargs: dict) -> float:
           optimizer,
           show_every=100,
           record_every=10000)
-    scores = []
-    for _ in range(10):  # 通过平均滤除随机波动
+    scores = torch.zeros(10)
+    for i in range(10):  # 通过平均滤除随机波动，并检验方差
         train(model,
               trainLoader,
               1,
               kwargs['batch_size'],
               optimizer,
               verbose=False)
-        scores.append(validate(model, trainLoader))
-    return sum(scores) / len(scores)
+        scores[i] = torch.scalar_tensor(validate(model, trainLoader), dtype=torch.float32)
+    if scores.var().item() > 0.005:  # 如果不收敛就弃去结果
+        return {'status': STATUS_FAIL}
+    else:
+        return scores.mean().item()
 
 
 def objective_model(kwargs: dict) -> float:
-    fixed = {'epochs': 400, 'batch_size': 120, 'lr': 2e-3}
+    fixed = {'epochs': 1000, 'batch_size': 240, 'lr': 1e-3}
     return _objective(kwargs | fixed)
 
 def objective_train(kwargs: dict) -> float:
