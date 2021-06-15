@@ -1,0 +1,13 @@
+#!/bin/bash
+#SBATCH -J pyt152240
+#SBATCH -p gpu_4l
+#SBATCH -N 1 
+#SBATCH -o pyt152240_%j.out
+#SBATCH -e pyt152240_%j.err
+#SBATCH --no-requeue
+#SBATCH -A lhlai_g1
+#SBATCH --qos=lhlaig4c
+#SBATCH --gres=gpu:1
+#SBATCH --overcommit
+#SBATCH --mincpus=7
+pkurun python hyper_params.py --dataset msft --model gru --mode train --device cuda:0

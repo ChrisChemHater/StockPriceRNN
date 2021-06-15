@@ -87,14 +87,15 @@ def _objective(kwargs: dict) -> float:
               optimizer,
               verbose=False)
         scores[i] = torch.scalar_tensor(validate(model, trainLoader), dtype=torch.float32)
-    if scores.var().item() > 0.005:  # 如果不收敛就弃去结果
+    # if scores.var().item() > 1e-3 or scores.mean().item() > 2e-2:  # 如果不收敛就弃去结果
+    if scores.var().item() > 1e-2:  # 如果不收敛就弃去结果
         return {'status': STATUS_FAIL}
     else:
-        return scores.mean().item()
+        return torch.log(scores.mean()).item()
 
 
 def objective_model(kwargs: dict) -> float:
-    fixed = {'epochs': 1000, 'batch_size': 240, 'lr': 1e-3}
+    fixed = {'epochs': 2000, 'batch_size': 240, 'lr': 1e-3}
     return _objective(kwargs | fixed)
 
 def objective_train(kwargs: dict) -> float:
@@ -104,9 +105,11 @@ def objective_train(kwargs: dict) -> float:
 
 def hyper_model() -> Trials:
     space = {
-        'look_back': hp.randint('look_back', 1, 49),
-        'hidden_dim': hp.randint('hidden_dim', 5, 51),
-        'num_layers': hp.randint('num_layers', 1, 4)
+        # 'look_back': hp.randint('look_back', 10, 30),
+        # 'hidden_dim': hp.randint('hidden_dim', 10, 30),
+        'look_back': hp.randint('look_back', 20, 30),
+        'hidden_dim': hp.randint('hidden_dim', 30, 40),
+        'num_layers': hp.randint('num_layers', 1, 3)
     }
     trials = Trials()
     fmin(objective_model, space, tpe.suggest, max_evals=50, timeout=10 * 60, trials=trials)
@@ -116,8 +119,8 @@ def hyper_model() -> Trials:
 
 def hyper_train() -> Trials:
     space = {
-        'epochs': hp.choice('epochs', [400, 600, 800, 1000, 1200]),
-        'batch_size': hp.choice('batch_size', [100, 130, 160]),
+        'epochs': hp.randint('epochs', 1800, 3000),
+        'batch_size': hp.randint('batch_size', 200, 300),
         'lr': hp.loguniform('lr', -8., -5.)
     }
     trials = Trials()

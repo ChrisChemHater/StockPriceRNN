@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -J pyt140044
+#SBATCH -J pyt133255
 #SBATCH -p gpu_4l
 #SBATCH -N 1 
-#SBATCH -o pyt140044_%j.out
-#SBATCH -e pyt140044_%j.err
+#SBATCH -o pyt133255_%j.out
+#SBATCH -e pyt133255_%j.err
 #SBATCH --no-requeue
 #SBATCH -A lhlai_g1
 #SBATCH --qos=lhlaig4c

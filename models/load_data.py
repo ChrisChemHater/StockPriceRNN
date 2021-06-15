@@ -85,6 +85,11 @@ class DataLoader(object):
         Xtest = self.data[-1, :-1].view(-1, 1)
         ytest = self.data[:, -1]
         return Xtest, ytest
+    
+    def getRollTestData(self) -> Tuple[torch.Tensor, torch.Tensor]:
+        Xtest = self.data[:, :-1].view(self.data.shape[0], -1, 1)
+        Ytest = self.data[:, -1]
+        return Xtest, Ytest
 
     def getTrainParams(self) -> dict:
         testHead = self._data[-self.look_back:, :]

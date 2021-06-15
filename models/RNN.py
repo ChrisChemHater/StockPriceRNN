@@ -104,11 +104,15 @@ def train(model: StockRNN,
 
 def validate(model:StockRNN, trainData:DataLoader, scorer:Callable=mean_squared_error) -> float:
     Xvalid, yvalid = trainData.getValidData()
-    return scorer(model(Xvalid).detach().cpu(), yvalid.detach().cpu())
+    return scorer(yvalid.detach().cpu(), model(Xvalid).detach().cpu())
 
 def evaluate(model:StockRNN, testData:DataLoader, scorer:Callable=mean_squared_error) -> float:
     Xtest, ytest = testData.getTestData()
-    return scorer(model.predict(Xtest, periods=len(ytest)).detach().cpu(), ytest.detach().cpu())
+    return scorer(ytest.detach().cpu(), model.predict(Xtest, periods=len(ytest)).detach().cpu())
+
+def evaluate_roll(model:StockRNN, testData:DataLoader, scorer:Callable=mean_squared_error) -> float:
+    Xtest, ytest = testData.getRollTestData()
+    return scorer(ytest.detach().cpu(), model(Xtest).detach().cpu())
 
 def test():
     from .load_data import DataLoader
